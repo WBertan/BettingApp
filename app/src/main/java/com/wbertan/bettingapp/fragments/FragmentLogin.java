@@ -1,8 +1,8 @@
 package com.wbertan.bettingapp.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,11 +14,11 @@ import com.wbertan.bettingapp.R;
  * Created by william.bertan on 17/12/2016.
  */
 
-public class FragmentLogin extends Fragment implements View.OnClickListener{
+public class FragmentLogin extends FragmentGeneric implements View.OnClickListener{
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_login, container, false);
+    public View onCreateView(LayoutInflater aInflater, @Nullable ViewGroup aContainer, @Nullable Bundle aSavedInstanceState) {
+        return aInflater.inflate(R.layout.fragment_login, aContainer, false);
     }
 
     @Override
@@ -32,11 +32,13 @@ public class FragmentLogin extends Fragment implements View.OnClickListener{
     }
 
     @Override
-    public void onClick(View view) {
-        if(view.getId() == R.id.buttonSignIn) {
-            
-        } else if(view.getId() == R.id.buttonSignUp) {
-
+    public void onClick(View aView) {
+        Intent intent = new Intent();
+        if(aView.getId() == R.id.buttonSignIn) {
+            intent.setAction("com.wbertan.bettingapp.broadcast.SIGN_IN");
+        } else if(aView.getId() == R.id.buttonSignUp) {
+            intent.setAction("com.wbertan.bettingapp.broadcast.SIGN_UP");
         }
+        getActivity().sendBroadcast(intent);
     }
 }
