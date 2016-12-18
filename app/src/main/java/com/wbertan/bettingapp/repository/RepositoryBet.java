@@ -1,16 +1,23 @@
 package com.wbertan.bettingapp.repository;
 
-import com.wbertan.bettingapp.generic.ICall;
+import com.wbertan.bettingapp.generic.CallbackError;
+import com.wbertan.bettingapp.generic.ICallback;
+import com.wbertan.bettingapp.generic.IRestCallback;
+import com.wbertan.bettingapp.json.JsonDeserializerBet;
 import com.wbertan.bettingapp.model.Bet;
+import com.wbertan.bettingapp.rest.RestClient;
 
-import java.util.ArrayList;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.List;
 
 /**
  * Created by william.bertan on 18/12/2016.
  */
 
-public class RepositoryBet extends RepositoryGeneric{
+public class RepositoryBet extends RepositoryGeneric implements IRestCallback<String> {
     private RepositoryBet() {}
 
     private static class SingletonHolder {
@@ -21,17 +28,26 @@ public class RepositoryBet extends RepositoryGeneric{
         return SingletonHolder.INSTANCE;
     }
 
-    public void getBets(ICall<List<Bet>> aCall) {
-        List<Bet> listBets = new ArrayList<Bet>();
-        listBets.add(new Bet(1, 10, "a", "i"));
-        listBets.add(new Bet(1, 10, "b", "h"));
-        listBets.add(new Bet(1, 10, "c", "g"));
-        listBets.add(new Bet(1, 10, "d", "f"));
-        listBets.add(new Bet(1, 10, "e", "e"));
-        listBets.add(new Bet(1, 10, "f", "d"));
-        listBets.add(new Bet(1, 10, "g", "c"));
-        listBets.add(new Bet(1, 10, "h", "b"));
-        listBets.add(new Bet(1, 10, "i", "a"));
-        aCall.onSuccess(listBets);
+    public void getBets(ICallback<List<Bet>> aCallback) {
+        RestClient.getInstance().doGet("https://api.myjson.com/bins/153gkl", this, aCallback);
+    }
+
+    @Override
+    public void onSuccess(String aObject, ICallback aCallBackWhenFinish) {
+        try {
+            JSONObject jsonObject = new JSONObject(aObject);
+            String timeStamp = jsonObject.getString("TimeStamp");
+            JSONArray jsonArrayInPlayBets = jsonObject.getJSONArray("InPlayBets");
+            List<Bet> listBet = JsonDeserializerBet.getInstance().parseFromJsonToList(jsonArrayInPlayBets);
+            aCallBackWhenFinish.onSuccess(listBet);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            aCallBackWhenFinish.onError(new CallbackError(-1, e.getMessage()));
+        }
+    }
+
+    @Override
+    public void onError(CallbackError aCallbackError, ICallback aCallBackWhenFinish) {
+        aCallBackWhenFinish.onError(aCallbackError);
     }
 }

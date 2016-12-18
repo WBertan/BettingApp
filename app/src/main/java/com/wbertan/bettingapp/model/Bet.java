@@ -11,13 +11,13 @@ import java.text.NumberFormat;
 
 public class Bet extends BaseObservable {
     private long mBetId;
-    private long mStake;
+    private double mStake;
     private String mOdds;
     private String mEvent;
 
     public Bet(){}
 
-    public Bet(long aBetId, long aStake, String aOdds, String aEvent){
+    public Bet(long aBetId, float aStake, String aOdds, String aEvent){
         this.mBetId = aBetId;
         this.mStake = aStake;
         this.mOdds = aOdds;
@@ -37,11 +37,11 @@ public class Bet extends BaseObservable {
         this.mBetId = mBetId;
     }
 
-    public long getStake() {
+    public double getStake() {
         return mStake;
     }
 
-    public void setStake(long stake) {
+    public void setStake(double stake) {
         this.mStake = stake;
     }
 

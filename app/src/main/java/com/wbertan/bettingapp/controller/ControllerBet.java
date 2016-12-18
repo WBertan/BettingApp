@@ -1,6 +1,6 @@
 package com.wbertan.bettingapp.controller;
 
-import com.wbertan.bettingapp.generic.ICall;
+import com.wbertan.bettingapp.generic.ICallback;
 import com.wbertan.bettingapp.model.Bet;
 import com.wbertan.bettingapp.repository.RepositoryBet;
 
@@ -21,7 +21,7 @@ public class ControllerBet extends ControllerGeneric{
         return SingletonHolder.INSTANCE;
     }
 
-    public void getBets(ICall<List<Bet>> aCall) {
-        RepositoryBet.getInstance().getBets(aCall);
+    public void getBets(ICallback<List<Bet>> aCallback) {
+        RepositoryBet.getInstance().getBets(aCallback);
     }
 }

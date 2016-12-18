@@ -4,11 +4,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crash.FirebaseCrash;
 import com.wbertan.bettingapp.R;
 import com.wbertan.bettingapp.props.PropsBroadcastReceiver;
 
@@ -18,13 +22,14 @@ import com.wbertan.bettingapp.props.PropsBroadcastReceiver;
 
 public abstract class ActivityGeneric extends AppCompatActivity {
     MainBroadcastReceiver mMainBroadcastReceiver = null;
+    FirebaseAnalytics mFirebaseAnalytics;
 
     class MainBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context aContext, Intent aIntent) {
             Fragment fragment = processBroadcastReceiver(aIntent);
             if(fragment == null) {
-                //wrong broadcast, need to exit the app for secure reasons
+                FirebaseCrash.log("Wrong Broadcast / No one could process broadcast! Exit the app for secure reasons! Action: " + aIntent.getAction());
                 finish();
                 return;
             }
@@ -34,6 +39,12 @@ public abstract class ActivityGeneric extends AppCompatActivity {
     }
 
     protected abstract Fragment processBroadcastReceiver(Intent aIntent);
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+    }
 
     @Override
     protected void onResume() {
