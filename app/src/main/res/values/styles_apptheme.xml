@@ -3,6 +3,14 @@
 <!-- Generated with http://android-holo-colors.com -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <style name="DividerAppTheme">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">2dp</item>
+        <item name="android:background">@color/apptheme_color</item>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
+    </style>
+
   <style name="AutoCompleteTextViewAppTheme" parent="android:Widget.Holo.Light.AutoCompleteTextView">
       <item name="android:dropDownSelector">@drawable/apptheme_list_selector_holo_light</item>
 	    <item name="android:background">@drawable/apptheme_edit_text_holo_light</item>
@@ -18,7 +26,7 @@
 
     <style name="TextViewAppTheme" parent="android:Widget.TextView">
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/apptheme_color</item>
     </style>
 
   <style name="ImageButtonAppTheme" parent="android:Widget.Holo.Light.ImageButton">
@@ -41,7 +49,7 @@
   </style>
 
   <style name="TabTextAppTheme">
-	  <item name="android:textColor">@color/app_theme_color_light</item>
+	  <item name="android:textColor">@color/apptheme_color_light</item>
       <item name="android:textSize">12sp</item>
       <item name="android:textStyle">bold</item>
       <!-- v14 <item name="android:textAllCaps">true</item> -->

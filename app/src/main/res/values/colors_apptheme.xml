@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="apptheme_color">#d82133</color>
+    <color name="apptheme_color_light">#2A3F82</color>
+    <color name="apptheme_background">#E4E4E4</color>
+    <color name="login_background">#727272</color>
+    <color name="player_background">#5E5081</color>
+    <color name="dialog_background">#a02a3f82</color>
+    <color name="alert_nivel0">#2E70CC</color>
+    <color name="alert_nivel1">#EA1E24</color>
+    <color name="alert_nivel2">#F1C40F</color>
+    <color name="alert_nivel3">#2ECC71</color>
+    <color name="alert_no_nivel">#B6B5AF</color>
+    <drawable name="selected_item_list">@color/dialog_background</drawable>
 </resources>

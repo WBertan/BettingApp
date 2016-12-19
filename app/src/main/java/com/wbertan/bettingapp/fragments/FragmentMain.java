@@ -20,6 +20,7 @@ import com.wbertan.bettingapp.controller.ControllerBet;
 import com.wbertan.bettingapp.generic.CallbackError;
 import com.wbertan.bettingapp.generic.ICallback;
 import com.wbertan.bettingapp.model.Bet;
+import com.wbertan.bettingapp.util.DialogUtil;
 
 import java.util.List;
 
@@ -28,6 +29,11 @@ import java.util.List;
  */
 
 public class FragmentMain extends FragmentGeneric implements ICallback<List<Bet>> {
+    @Override
+    public String getActivityTitle() {
+        return "Betting App!";
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater aInflater, @Nullable ViewGroup aContainer, @Nullable Bundle aSavedInstanceState) {
@@ -37,12 +43,16 @@ public class FragmentMain extends FragmentGeneric implements ICallback<List<Bet>
     @Override
     public void onStart() {
         super.onStart();
+        if(getView() == null) {
+            return;
+        }
+        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.recycleViewOdds);
+        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), getSpanCount()));
+    }
 
-        RecyclerView mRecyclerView = (RecyclerView) getView().findViewById(R.id.recycleViewOdds);
-        mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), getSpanCount()));
-
-        setChildFragment(R.id.frameLayoutDashboard, new FragmentDashboard());
-
+    @Override
+    public void onResume() {
+        super.onResume();
         ControllerBet.getInstance().getBets(this);
     }
 
@@ -64,21 +74,27 @@ public class FragmentMain extends FragmentGeneric implements ICallback<List<Bet>
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
                 || newConfig.orientation == Configuration.ORIENTATION_PORTRAIT
                 || newConfig.orientation == Configuration.ORIENTATION_UNDEFINED){
-            RecyclerView mRecyclerView = (RecyclerView) getView().findViewById(R.id.recycleViewOdds);
-            mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), getSpanCount()));
+            if(getView() == null) {
+                return;
+            }
+            RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.recycleViewOdds);
+            recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), getSpanCount()));
         }
     }
 
     @Override
     public void onSuccess(List<Bet> aObject) {
+        if(getView() == null) {
+            return;
+        }
         AdapterGeneric<Bet> adapter = new AdapterGeneric<>(R.layout.adapter_bet_item, BR.bet);
         adapter.addAll(aObject);
-        RecyclerView mRecyclerView = (RecyclerView) getView().findViewById(R.id.recycleViewOdds);
-        mRecyclerView.setAdapter(adapter);
+        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.recycleViewOdds);
+        recyclerView.setAdapter(adapter);
     }
 
     @Override
     public void onError(CallbackError aCallbackError) {
-
+        DialogUtil.instantiate(getActivity()).withMessage("How embarassing it is... I couldn't load your bet list! Please try again in some minutes...").show();
     }
 }
