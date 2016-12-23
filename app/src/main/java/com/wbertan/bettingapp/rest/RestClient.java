@@ -1,8 +1,9 @@
 package com.wbertan.bettingapp.rest;
 
 import com.wbertan.bettingapp.generic.CallbackError;
-import com.wbertan.bettingapp.generic.ICallback;
 import com.wbertan.bettingapp.generic.IRestCallback;
+import com.wbertan.bettingapp.props.PropsRestRequestCode;
+import com.wbertan.bettingapp.props.PropsRestRequestUrl;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -12,6 +13,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
@@ -32,7 +34,7 @@ public class RestClient {
     private String mResponse = null;
     private String mError = null;
 
-    public void doGet(final String aUrl, IRestCallback<String> aCallback, ICallback aCallbackWhenFinish) {
+    public void doGet(@PropsRestRequestUrl final String aUrl, IRestCallback<String> aCallback, @PropsRestRequestCode int aRestRequestCode) {
         Thread thread = new Thread(new Runnable(){
             @Override
             public void run() {
@@ -45,7 +47,7 @@ public class RestClient {
                     StringBuilder stringBuilderResponse = new StringBuilder();
                     String bufferLine;
                     while((bufferLine = bufferedReaderResponse.readLine()) != null) {
-                        stringBuilderResponse.append(bufferLine + '\n');
+                        stringBuilderResponse.append(bufferLine).append('\n');
                     }
                     mResponse = stringBuilderResponse.toString();
                 } catch (Exception ex) {
@@ -54,8 +56,10 @@ public class RestClient {
                     mResponse = null;
                 } finally {
                     try {
-                        bufferedReaderResponse.close();
-                    } catch(Exception ex) {}
+                        if (bufferedReaderResponse != null) {
+                            bufferedReaderResponse.close();
+                        }
+                    } catch (IOException ignored) {}
                     mFetchingUrl = false;
                 }
             }
@@ -63,13 +67,13 @@ public class RestClient {
         thread.start();
         while(mFetchingUrl);
         if(mResponse != null) {
-            aCallback.onSuccess(mResponse, aCallbackWhenFinish);
+            aCallback.onSuccess(aRestRequestCode, mResponse);
         } else {
-            aCallback.onError(new CallbackError(-1, mError), aCallbackWhenFinish);
+            aCallback.onError(aRestRequestCode, new CallbackError(-1, mError));
         }
     }
 
-    public void doPost(final String aUrl, final List<NameValuePair> aDataToSend, IRestCallback<String> aCallback, ICallback aCallbackWhenFinish) {
+    public void doPost(@PropsRestRequestUrl final String aUrl, final List<NameValuePair> aDataToSend, IRestCallback<String> aCallback, @PropsRestRequestCode int aRestRequestCode) {
         Thread thread = new Thread(new Runnable(){
             @Override
             public void run() {
@@ -86,7 +90,7 @@ public class RestClient {
                     StringBuilder stringBuilderResponse = new StringBuilder();
                     String bufferLine;
                     while((bufferLine = bufferedReaderResponse.readLine()) != null) {
-                        stringBuilderResponse.append(bufferLine + '\n');
+                        stringBuilderResponse.append(bufferLine).append('\n');
                     }
                     mResponse = stringBuilderResponse.toString();
                 } catch (Exception ex) {
@@ -95,8 +99,10 @@ public class RestClient {
                     mResponse = null;
                 } finally {
                     try {
-                        bufferedReaderResponse.close();
-                    } catch(Exception ex) {}
+                        if (bufferedReaderResponse != null) {
+                            bufferedReaderResponse.close();
+                        }
+                    } catch (IOException ignored) {}
                     mFetchingUrl = false;
                 }
             }
@@ -104,9 +110,9 @@ public class RestClient {
         thread.start();
         while(mFetchingUrl);
         if(mResponse != null) {
-            aCallback.onSuccess(mResponse, aCallbackWhenFinish);
+            aCallback.onSuccess(aRestRequestCode, mResponse);
         } else {
-            aCallback.onError(new CallbackError(-1, mError), aCallbackWhenFinish);
+            aCallback.onError(aRestRequestCode, new CallbackError(-1, mError));
         }
     }
 }

@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Display;
@@ -28,10 +29,10 @@ import java.util.List;
  * Created by william.bertan on 18/12/2016.
  */
 
-public class FragmentMain extends FragmentGeneric implements ICallback<List<Bet>> {
+public class FragmentMain extends FragmentGeneric implements ICallback<Bet>, View.OnClickListener {
     @Override
-    public String getActivityTitle() {
-        return "Betting App!";
+    public String getFragmentTitle() {
+        return getString(R.string.fragment_main_title);
     }
 
     @Nullable
@@ -46,14 +47,18 @@ public class FragmentMain extends FragmentGeneric implements ICallback<List<Bet>
         if(getView() == null) {
             return;
         }
+        FloatingActionButton floatingActionButtonFavorite = (FloatingActionButton) getView().findViewById(R.id.floatingActionButtonFavorite);
+        floatingActionButtonFavorite.setOnClickListener(this);
+
         RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.recycleViewOdds);
         recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), getSpanCount()));
-    }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        ControllerBet.getInstance().getBets(this);
+        AdapterGeneric<Bet> adapter = new AdapterGeneric<>(R.layout.adapter_bet_item, BR.bet);
+        recyclerView.setAdapter(adapter);
+
+        showProgress();
+        ControllerBet.getInstance().getBets(this, 0);
+        ControllerBet.getInstance().getFavoriteBets(this, 1);
     }
 
     private int getSpanCount() {
@@ -83,18 +88,52 @@ public class FragmentMain extends FragmentGeneric implements ICallback<List<Bet>
     }
 
     @Override
-    public void onSuccess(List<Bet> aObject) {
-        if(getView() == null) {
-            return;
-        }
-        AdapterGeneric<Bet> adapter = new AdapterGeneric<>(R.layout.adapter_bet_item, BR.bet);
-        adapter.addAll(aObject);
-        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.recycleViewOdds);
-        recyclerView.setAdapter(adapter);
+    public void onSuccess(int aRequestCode, Bet aObject) {
+        /* do nothing */
+        dismissProgress();
     }
 
     @Override
-    public void onError(CallbackError aCallbackError) {
-        DialogUtil.instantiate(getActivity()).withMessage("How embarassing it is... I couldn't load your bet list! Please try again in some minutes...").show();
+    public void onSuccess(int aRequestCode, List<Bet> aObject) {
+        if(getView() == null) {
+            return;
+        }
+        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.recycleViewOdds);
+        AdapterGeneric<Bet> adapter = (AdapterGeneric<Bet>) recyclerView.getAdapter();
+        if(aRequestCode == 0) { //LOAD
+            adapter.addAll(aObject, true);
+            DialogUtil.instantiate(getActivity()).withTitle(getString(R.string.dialog_title_success)).withMessage(getString(R.string.dialog_message_load_bet_success)).show();
+        } if(aRequestCode == 1) { //LOAD FAVORITE
+            adapter.insertOrUpdate(aObject);
+        } else if(aRequestCode == 2) { //ADD TO FAVORITE
+            adapter.notifyItemChanged(adapter.getSelectedPosition());
+            DialogUtil.instantiate(getActivity()).withTitle(getString(R.string.dialog_title_success)).withMessage(getString(R.string.dialog_message_add_favorite_success)).show();
+        } else if(aRequestCode == 3) { //REMOVE FROM FAVORITE
+            adapter.notifyItemChanged(adapter.getSelectedPosition());
+        }
+        dismissProgress();
+    }
+
+    @Override
+    public void onError(int aRequestCode, CallbackError aCallbackError) {
+        DialogUtil.instantiate(getActivity()).withMessage(getString(R.string.dialog_message_error_embarassing)).show();
+        dismissProgress();
+    }
+
+    @Override
+    public void onClick(View view) {
+        if(getView() == null) {
+            return;
+        }
+        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.recycleViewOdds);
+        AdapterGeneric<Bet> adapter = (AdapterGeneric<Bet>) recyclerView.getAdapter();
+        Bet bet = adapter.getSelectedItem();
+
+        showProgress();
+        if(bet.isFavorite()) {
+            ControllerBet.getInstance().removeBetFromFavorites(this, bet, 3);
+        } else {
+            ControllerBet.getInstance().addBetToFavorites(this, bet, 2);
+        }
     }
 }

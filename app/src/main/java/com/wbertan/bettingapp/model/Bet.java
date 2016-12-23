@@ -2,22 +2,34 @@ package com.wbertan.bettingapp.model;
 
 import android.databinding.BaseObservable;
 import android.databinding.Bindable;
+import android.view.View;
+
+import com.google.firebase.database.Exclude;
+import com.google.firebase.database.IgnoreExtraProperties;
+import com.google.firebase.database.PropertyName;
 
 import java.text.NumberFormat;
 
 /**
  * Created by william.bertan on 18/12/2016.
  */
-
+@IgnoreExtraProperties
 public class Bet extends BaseObservable {
+    @PropertyName(value = "betId")
     private long mBetId;
-    private double mStake;
+    @PropertyName(value = "Stake")
+    private String mStake;
+    @PropertyName(value = "Odds")
     private String mOdds;
+    @PropertyName(value = "Event")
     private String mEvent;
+
+    @Exclude
+    private boolean favorite;
 
     public Bet(){}
 
-    public Bet(long aBetId, float aStake, String aOdds, String aEvent){
+    public Bet(long aBetId, String aStake, String aOdds, String aEvent){
         this.mBetId = aBetId;
         this.mStake = aStake;
         this.mOdds = aOdds;
@@ -25,8 +37,15 @@ public class Bet extends BaseObservable {
     }
 
     @Bindable
+    @Exclude
     public String getFormattedStake(){
-        return NumberFormat.getCurrencyInstance().format(getStake());
+        return NumberFormat.getCurrencyInstance().format(Double.valueOf(getStake()));
+    }
+
+    @Bindable
+    @Exclude
+    public int getImageViewFavoriteVisibiity() {
+        return isFavorite() ? View.VISIBLE : View.GONE;
     }
 
     public long getBetId() {
@@ -37,11 +56,11 @@ public class Bet extends BaseObservable {
         this.mBetId = mBetId;
     }
 
-    public double getStake() {
+    public String getStake() {
         return mStake;
     }
 
-    public void setStake(double stake) {
+    public void setStake(String stake) {
         this.mStake = stake;
     }
 
@@ -59,5 +78,28 @@ public class Bet extends BaseObservable {
 
     public void setEvent(String event) {
         this.mEvent = event;
+    }
+
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        }
+
+        if (!(object instanceof Bet)) {
+            return false;
+        }
+
+        Bet bet = (Bet) object;
+
+        return bet.getBetId() == getBetId();
     }
 }

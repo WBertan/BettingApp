@@ -23,7 +23,7 @@ public class SharedPreferencesManager {
 
     private SharedPreferences getSharedPreferences() {
         if(mSharedPreferences == null) {
-            mSharedPreferences = mContext.getSharedPreferences(PREFERENCES_NAME, mContext.MODE_PRIVATE);
+            mSharedPreferences = mContext.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
         }
         return mSharedPreferences;
     }
@@ -93,6 +93,6 @@ public class SharedPreferencesManager {
     }
 
     public void remove(String aKey) {
-        getSharedPreferences().edit().remove(aKey).commit();
+        getSharedPreferences().edit().remove(aKey).apply();
     }
 }

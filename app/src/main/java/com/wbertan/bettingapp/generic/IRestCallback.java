@@ -1,10 +1,12 @@
 package com.wbertan.bettingapp.generic;
 
+import com.wbertan.bettingapp.props.PropsRestRequestCode;
+
 /**
  * Created by william.bertan on 18/12/2016.
  */
 
 public interface IRestCallback<T> {
-    void onSuccess(T aObject, ICallback aCallBackWhenFinish);
-    void onError(CallbackError aCallbackError, ICallback aCallBackWhenFinish);
+    void onSuccess(@PropsRestRequestCode int aRestRequestCode, T aObject);
+    void onError(@PropsRestRequestCode int aRestRequestCode, CallbackError aCallbackError);
 }

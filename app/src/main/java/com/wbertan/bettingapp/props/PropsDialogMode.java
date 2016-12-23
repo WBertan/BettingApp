@@ -16,6 +16,6 @@ import static com.wbertan.bettingapp.props.PropsDialogMode.MODE_YES_NO;
 @Retention(RetentionPolicy.SOURCE)
 @IntDef(value = {MODE_OK, MODE_YES_NO})
 public @interface PropsDialogMode {
-    public static final int MODE_OK = R.layout.dialog_ok;
-    public static final int MODE_YES_NO = R.layout.dialog_yes_no;
+    int MODE_OK = R.layout.dialog_ok;
+    int MODE_YES_NO = R.layout.dialog_yes_no;
 }

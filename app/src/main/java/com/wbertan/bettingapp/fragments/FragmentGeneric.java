@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
+import com.wbertan.bettingapp.R;
 import com.wbertan.bettingapp.props.PropsBroadcastReceiver;
 
 /**
@@ -14,48 +15,30 @@ import com.wbertan.bettingapp.props.PropsBroadcastReceiver;
  */
 
 public abstract class FragmentGeneric extends Fragment {
-    public abstract String getActivityTitle();
+    public abstract String getFragmentTitle();
     private static ProgressDialog mProgressDialog;
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        mProgressDialog = new ProgressDialog(getActivity());
-        mProgressDialog.setIndeterminate(true);
-    }
-
     protected void showProgress() {
-        showProgress("Preparing everything for you!", "Please wait a moment.");
+        showProgress(getString(R.string.progress_title_preparing), getString(R.string.progress_message_waiting));
     }
 
     protected void showProgress(@NonNull String aTitle, @NonNull String aMessage) {
-        if(mProgressDialog != null && !mProgressDialog.isShowing()) {
-            mProgressDialog.setTitle(aTitle);
-            mProgressDialog.setMessage(aMessage);
-            mProgressDialog.show();
+        if(mProgressDialog == null) {
+            mProgressDialog = ProgressDialog.show(getActivity(), aTitle, aMessage);
         }
     }
 
     protected void dismissProgress() {
-        if(mProgressDialog != null && mProgressDialog.isShowing()) {
+        if(mProgressDialog != null) {
             mProgressDialog.dismiss();
+            mProgressDialog = null;
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        dismissProgress();
-        super.onDestroy();
     }
 
     @Override
     public void onStop() {
         dismissProgress();
         super.onStop();
-    }
-
-    private void setActivityTitle(String aTitle) {
-        getActivity().getActionBar().setTitle(getActivityTitle());
     }
 
     protected void setChildFragment(int aFragmentContainer, Fragment aFragment) {

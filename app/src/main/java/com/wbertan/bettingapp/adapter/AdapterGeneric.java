@@ -23,6 +23,7 @@ import java.util.List;
 public class AdapterGeneric<T> extends RecyclerView.Adapter<AdapterGeneric.ViewHolder> {
     private List<T> mDataset;
     private ViewHolderAction mViewHolderAction;
+    private ViewHolderLongAction mViewHolderLongAction;
     private int mSelectedPosition = -1;
     private int mLayoutRes;
     private int mVariableId;
@@ -38,13 +39,41 @@ public class AdapterGeneric<T> extends RecyclerView.Adapter<AdapterGeneric.ViewH
         this.mViewHolderAction = aViewHolderAction;
     }
 
+    public AdapterGeneric(@LayoutRes int aLayoutRes, int aVariableId, ViewHolderAction aViewHolderAction, ViewHolderLongAction aViewHolderLongAction) {
+        this(aLayoutRes, aVariableId, aViewHolderAction);
+        this.mViewHolderLongAction = aViewHolderLongAction;
+    }
+
     public void add(T aObject) {
-        mDataset.add(aObject);
-        notifyItemInserted(mDataset.size() - 1);
+        if(aObject != null && !mDataset.contains(aObject)) {
+            mDataset.add(aObject);
+            notifyItemInserted(mDataset.size() - 1);
+        }
     }
 
     public void addAll(Collection<T> aColletion) {
+        addAll(aColletion, false);
+    }
+
+    public void addAll(Collection<T> aColletion, boolean aClearList) {
+        if(aClearList) {
+            mDataset.clear();
+        }
         mDataset.addAll(aColletion);
+        notifyDataSetChanged();
+    }
+
+    public void insertOrUpdate(Collection<T> aColletion) {
+        if(aColletion != null && !aColletion.isEmpty()) {
+            for (T t : aColletion) {
+                int indexT = mDataset.indexOf(t);
+                if (indexT > -1) {
+                    mDataset.set(indexT, t);
+                } else {
+                    add(t);
+                }
+            }
+        }
         notifyDataSetChanged();
     }
 
@@ -79,7 +108,11 @@ public class AdapterGeneric<T> extends RecyclerView.Adapter<AdapterGeneric.ViewH
     }
 
     public interface ViewHolderAction {
-        void executeRecyclerItemClick(View view, int position);
+        void executeRecyclerItemClick(View aView, int aPosition);
+    }
+
+    public interface ViewHolderLongAction {
+        void executeRecyclerItemLongClick(View aView, int aPosition);
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -107,6 +140,19 @@ public class AdapterGeneric<T> extends RecyclerView.Adapter<AdapterGeneric.ViewH
                 if(mViewHolderAction != null) {
                     mViewHolderAction.executeRecyclerItemClick(view, aHolder.getAdapterPosition());
                 }
+            }
+        });
+
+        aHolder.mCardView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                mSelectedPosition = aHolder.getAdapterPosition();
+                notifyDataSetChanged();
+                if (mViewHolderLongAction != null) {
+                    mViewHolderLongAction.executeRecyclerItemLongClick(view, aHolder.getAdapterPosition());
+                    return true;
+                }
+                return false;
             }
         });
     }

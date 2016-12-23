@@ -13,6 +13,7 @@ import android.security.keystore.KeyPermanentlyInvalidatedException;
 import android.security.keystore.KeyProperties;
 import android.support.v4.app.ActivityCompat;
 
+import com.wbertan.bettingapp.R;
 import com.wbertan.bettingapp.generic.CallbackError;
 import com.wbertan.bettingapp.generic.ICallback;
 
@@ -37,50 +38,48 @@ import javax.crypto.SecretKey;
  */
 @TargetApi(Build.VERSION_CODES.M)
 public class ControllerFingerprint {
-    private static final String KEY_NAME = "betting_app_key";
-
     private KeyStore mKeyStore;
     private Cipher mCipher;
 
-    public void validateFingerprint(Context aContext, ICallback<Boolean> aCallback) {
+    public void validateFingerprint(Context aContext, ICallback<Boolean> aCallback, int aRequestCode) {
         KeyguardManager keyguardManager = (KeyguardManager) aContext.getSystemService(Context.KEYGUARD_SERVICE);
         FingerprintManager fingerprintManager = (FingerprintManager) aContext.getSystemService(Context.FINGERPRINT_SERVICE);
 
         if (!keyguardManager.isKeyguardSecure()) {
-            aCallback.onError(new CallbackError(-1, "Lock screen security not enabled in Settings"));
+            aCallback.onError(aRequestCode, new CallbackError(-1, aContext.getString(R.string.fingerprint_validate_lock_screen_not_enabled)));
             return;
         }
         if (ActivityCompat.checkSelfPermission(aContext, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
-            aCallback.onError(new CallbackError(-1, "Fingerprint authentication permission not enabled"));
+            aCallback.onError(aRequestCode, new CallbackError(-1, aContext.getString(R.string.fingerprint_validate_authentication_permission_not_enabled)));
             return;
         }
         if (!fingerprintManager.hasEnrolledFingerprints()) {
-            aCallback.onError(new CallbackError(-1, "Register at least one fingerprint in Settings"));
+            aCallback.onError(aRequestCode, new CallbackError(-1, aContext.getString(R.string.fingerprint_validate_no_fingerprints)));
             return;
         }
 
-        generateKey();
+        generateKey(aContext);
 
-        if (cipherInit()) {
+        if (cipherInit(aContext)) {
             FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(mCipher);
-            FingerprintHandler helper = new FingerprintHandler(aCallback);
+            FingerprintHandler helper = new FingerprintHandler(aCallback, aRequestCode);
             helper.startAuth(aContext, fingerprintManager, cryptoObject);
         }
     }
 
-    private boolean cipherInit() {
+    private boolean cipherInit(Context aContext) {
         try {
             mCipher = Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES + "/"
                                       + KeyProperties.BLOCK_MODE_CBC + "/"
                                       + KeyProperties.ENCRYPTION_PADDING_PKCS7);
         } catch (NoSuchAlgorithmException
                 | NoSuchPaddingException e) {
-            throw new RuntimeException("Failed to get Cipher", e);
+            throw new RuntimeException(aContext.getString(R.string.fingerprint_cipher_get_failed), e);
         }
 
         try {
             mKeyStore.load(null);
-            SecretKey key = (SecretKey) mKeyStore.getKey(KEY_NAME, null);
+            SecretKey key = (SecretKey) mKeyStore.getKey(aContext.getString(R.string.fingerprint_cipher_key_app), null);
             mCipher.init(Cipher.ENCRYPT_MODE, key);
             return true;
         } catch (KeyPermanentlyInvalidatedException e) {
@@ -91,11 +90,11 @@ public class ControllerFingerprint {
                 | IOException
                 | NoSuchAlgorithmException
                 | InvalidKeyException e) {
-            throw new RuntimeException("Failed to init Cipher", e);
+            throw new RuntimeException(aContext.getString(R.string.fingerprint_cipher_init_failed), e);
         }
     }
 
-    private void generateKey() {
+    private void generateKey(Context aContext) {
         try {
             mKeyStore = KeyStore.getInstance("AndroidKeyStore");
         } catch (Exception e) {
@@ -107,12 +106,12 @@ public class ControllerFingerprint {
             keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
         } catch (NoSuchAlgorithmException
                 | NoSuchProviderException e) {
-            throw new RuntimeException("Failed to get KeyGenerator instance", e);
+            throw new RuntimeException(aContext.getString(R.string.fingerprint_key_generation_failed), e);
         }
 
         try {
             mKeyStore.load(null);
-            keyGenerator.init(new KeyGenParameterSpec.Builder(KEY_NAME, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+            keyGenerator.init(new KeyGenParameterSpec.Builder(aContext.getString(R.string.fingerprint_cipher_key_app), KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
                                                      .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
                                                      .setUserAuthenticationRequired(true)
                                                      .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
@@ -128,8 +127,10 @@ public class ControllerFingerprint {
 
     private class FingerprintHandler extends FingerprintManager.AuthenticationCallback {
         private ICallback<Boolean> mCallback;
-        private FingerprintHandler(ICallback<Boolean> aCallback) {
+        private int mRequestCode;
+        private FingerprintHandler(ICallback<Boolean> aCallback, int aRequestCode) {
             mCallback = aCallback;
+            mRequestCode = aRequestCode;
         }
 
         void startAuth(Context aContext, FingerprintManager aManager, FingerprintManager.CryptoObject aCryptoObject) {
@@ -143,25 +144,25 @@ public class ControllerFingerprint {
         @Override
         public void onAuthenticationError(int aErrorCode, CharSequence aErrorString) {
             super.onAuthenticationError(aErrorCode, aErrorString);
-            mCallback.onError(new CallbackError(aErrorCode, "Authentication error.\n" + aErrorString));
+            mCallback.onError(mRequestCode, new CallbackError(aErrorCode, "Authentication error.\n" + aErrorString));
         }
 
         @Override
         public void onAuthenticationHelp(int aHelpMessageId, CharSequence aHelpString) {
             super.onAuthenticationHelp(aHelpMessageId, aHelpString);
-            mCallback.onError(new CallbackError(-1, "Authentication help.\n" + aHelpString));
+            mCallback.onError(mRequestCode, new CallbackError(-1, "Authentication help.\n" + aHelpString));
         }
 
         @Override
         public void onAuthenticationFailed() {
             super.onAuthenticationFailed();
-            mCallback.onSuccess(false);
+            mCallback.onSuccess(mRequestCode, false);
         }
 
         @Override
         public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult aResult) {
             super.onAuthenticationSucceeded(aResult);
-            mCallback.onSuccess(true);
+            mCallback.onSuccess(mRequestCode, true);
         }
     }
 }

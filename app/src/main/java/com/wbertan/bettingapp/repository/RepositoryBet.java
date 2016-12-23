@@ -1,53 +1,28 @@
 package com.wbertan.bettingapp.repository;
 
-import com.wbertan.bettingapp.generic.CallbackError;
-import com.wbertan.bettingapp.generic.ICallback;
-import com.wbertan.bettingapp.generic.IRestCallback;
-import com.wbertan.bettingapp.json.JsonDeserializerBet;
+import com.wbertan.bettingapp.BuildConfig;
 import com.wbertan.bettingapp.model.Bet;
-import com.wbertan.bettingapp.rest.RestClient;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.List;
 
 /**
  * Created by william.bertan on 18/12/2016.
  */
 
-public class RepositoryBet extends RepositoryGeneric implements IRestCallback<String> {
-    private RepositoryBet() {}
+public abstract class RepositoryBet extends RepositoryGeneric<Bet> {
+    RepositoryBet() {}
 
     private static class SingletonHolder {
-        private static final RepositoryBet INSTANCE = new RepositoryBet();
+        private static final RepositoryBet INSTANCE = BuildConfig.USING_FIREBASE ? new RepositoryBetFirebase() : new RepositoryBetRest();
     }
 
     public static RepositoryBet getInstance() {
         return SingletonHolder.INSTANCE;
     }
 
-    public void getBets(ICallback<List<Bet>> aCallback) {
-        RestClient.getInstance().doGet("https://api.myjson.com/bins/153gkl", this, aCallback);
-    }
+    public abstract void load(int aRequestCode);
 
-    @Override
-    public void onSuccess(String aObject, ICallback aCallBackWhenFinish) {
-        try {
-            JSONObject jsonObject = new JSONObject(aObject);
-            String timeStamp = jsonObject.getString("TimeStamp");
-            JSONArray jsonArrayInPlayBets = jsonObject.getJSONArray("InPlayBets");
-            List<Bet> listBet = JsonDeserializerBet.getInstance().parseFromJsonToList(jsonArrayInPlayBets);
-            aCallBackWhenFinish.onSuccess(listBet);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            aCallBackWhenFinish.onError(new CallbackError(-1, e.getMessage()));
-        }
-    }
+    public abstract void loadFavorite(int aRequestCode);
 
-    @Override
-    public void onError(CallbackError aCallbackError, ICallback aCallBackWhenFinish) {
-        aCallBackWhenFinish.onError(aCallbackError);
-    }
+    public abstract void addToFavorite(Bet aBet, int aRequestCode);
+
+    public abstract void removeFromFavorite(Bet aBet, int aRequestCode);
 }

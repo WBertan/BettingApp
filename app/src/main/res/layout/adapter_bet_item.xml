@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/tools">
     <data>
         <variable name="bet" type="com.wbertan.bettingapp.model.Bet"/>
     </data>
@@ -42,6 +43,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/textViewEvent"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"/>
+
+                <ImageView
+                    android:id="@+id/imageViewFavorite"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/image_favorite"
+                    android:tint="@color/colorAccent"
+                    android:visibility="@{bet.imageViewFavoriteVisibiity}"
+                    android:layout_below="@+id/textViewEvent"
+                    android:foregroundGravity="center_horizontal"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"/>
 

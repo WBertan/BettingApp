@@ -27,6 +27,8 @@ import com.wbertan.bettingapp.props.PropsBroadcastReceiver;
 import com.wbertan.bettingapp.props.PropsPermissionRequestCode;
 import com.wbertan.bettingapp.util.DialogUtil;
 
+import java.util.List;
+
 /**
  * Created by william.bertan on 18/12/2016.
  */
@@ -34,8 +36,8 @@ import com.wbertan.bettingapp.util.DialogUtil;
 public class FragmentSignIn extends FragmentGeneric implements TextWatcher, View.OnClickListener, ICallback<Boolean> {
     private EditText mEditTextPassword;
     @Override
-    public String getActivityTitle() {
-        return "Sign In";
+    public String getFragmentTitle() {
+        return getString(R.string.fragment_sign_in_title);
     }
 
     @Nullable
@@ -64,6 +66,9 @@ public class FragmentSignIn extends FragmentGeneric implements TextWatcher, View
                 textViewFingerprint.setVisibility(View.INVISIBLE);
                 imageViewFingerprint.setVisibility(View.INVISIBLE);
             }
+        } else {
+            textViewFingerprint.setVisibility(View.INVISIBLE);
+            imageViewFingerprint.setVisibility(View.INVISIBLE);
         }
 
         mEditTextPassword = (EditText) getView().findViewById(R.id.editTextPassword);
@@ -92,11 +97,11 @@ public class FragmentSignIn extends FragmentGeneric implements TextWatcher, View
     public void afterTextChanged(Editable aEditable) {
         if(aEditable.toString().length() == 4) {
             if(!ControllerUser.getInstance().validatePassword(getActivity(), mEditTextPassword.getEditableText().toString())) {
-                mEditTextPassword.setText("");
-                mEditTextPassword.setError("Check again, because it's the wrong password!");
+                mEditTextPassword.setText(null);
+                mEditTextPassword.setError(getString(R.string.message_validate_wrong_password));
                 return;
             } else {
-                mEditTextPassword.setText("");
+                mEditTextPassword.setText(null);
                 getActivity().sendBroadcast(prepareAction(PropsBroadcastReceiver.LOGIN));
             }
             mEditTextPassword.setError(null);
@@ -106,23 +111,28 @@ public class FragmentSignIn extends FragmentGeneric implements TextWatcher, View
     @Override
     public void onClick(View view) {
         if(view.getId() == R.id.imageViewFingerprint) {
-            showProgress("Fingerprint validation!", "Please touch the fingerprint sensor to login!");
-            new ControllerFingerprint().validateFingerprint(getActivity(), this);
+            showProgress(getString(R.string.fingerprint_progress_validation_title), getString(R.string.fingerprint_progress_validation_message));
+            new ControllerFingerprint().validateFingerprint(getActivity(), this, 0);
         }
     }
 
     @Override
-    public void onSuccess(Boolean aObject) {
+    public void onSuccess(int aRequestCode, Boolean aObject) {
         dismissProgress();
         if(aObject) {
             getActivity().sendBroadcast(prepareAction(PropsBroadcastReceiver.LOGIN));
         } else {
-            DialogUtil.instantiate(getActivity()).withMessage("Authentication failed.").show();
+            DialogUtil.instantiate(getActivity()).withMessage(getString(R.string.fingerprint_message_validation_failed)).show();
         }
     }
 
     @Override
-    public void onError(CallbackError aCallbackError) {
+    public void onSuccess(int aRequestCode, List<Boolean> aObject) {
+        /* do nothing */
+    }
+
+    @Override
+    public void onError(int aRequestCode, CallbackError aCallbackError) {
         dismissProgress();
         DialogUtil.instantiate(getActivity()).withMessage(aCallbackError.getMessage()).show();
     }

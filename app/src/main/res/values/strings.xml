@@ -2,8 +2,31 @@
     <string name="app_name">Betting App</string>
 
     <string name="ok">OK</string>
-    <string name="yes">YES</string>
-    <string name="no">NO</string>
-    <string name="cancel">CANCEL</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="cancel">Cancel</string>
     <string name="dialog_default_title">:(</string>
+    <string name="progress_message_waiting">Please wait a moment.</string>
+    <string name="progress_title_preparing">Preparing everything for you!</string>
+    <string name="fingerprint_validate_lock_screen_not_enabled">Lock screen security not enabled in Settings</string>
+    <string name="fingerprint_validate_authentication_permission_not_enabled">Fingerprint authentication permission not enabled</string>
+    <string name="fingerprint_validate_no_fingerprints">Register at least one fingerprint in Settings</string>
+    <string name="fingerprint_cipher_get_failed">Failed to get Cipher</string>
+    <string name="fingerprint_cipher_init_failed">Failed to init Cipher</string>
+    <string name="fingerprint_cipher_key_app">betting_app_key</string>
+    <string name="fingerprint_key_generation_failed">Failed to get KeyGenerator instance</string>
+    <string name="dialog_message_load_bet_success">Some of the odds had changed! May this change the game!</string>
+    <string name="dialog_message_add_favorite_success">Favorited bet! We are cheering for you!</string>
+    <string name="dialog_title_success">:)</string>
+    <string name="dialog_message_error_embarassing">How embarrassing it is… I\'ve found some error loading your bet! Please try again in a moment…</string>
+    <string name="fragment_exit_title">Exit</string>
+    <string name="fragment_login_title">Login</string>
+    <string name="fragment_main_title">Let\'s play!</string>
+    <string name="fragment_sign_in_title">Sign In</string>
+    <string name="fragment_sign_up_title">Sign Up</string>
+    <string name="message_validate_wrong_password">Check again, because it\'s the wrong password!</string>
+    <string name="fingerprint_progress_validation_title">Fingerprint validation!</string>
+    <string name="fingerprint_progress_validation_message">Please touch the fingerprint sensor to login!</string>
+    <string name="fingerprint_message_validation_failed">Authentication failed.</string>
+    <string name="message_validation_check_both_password">Check again, because the passwords didn\'t check!</string>
 </resources>

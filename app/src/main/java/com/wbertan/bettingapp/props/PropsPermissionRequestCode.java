@@ -12,5 +12,5 @@ import static com.wbertan.bettingapp.props.PropsPermissionRequestCode.FINGERPRIN
 @Retention(RetentionPolicy.SOURCE)
 @IntDef(value = {FINGERPRINT})
 public @interface PropsPermissionRequestCode {
-    public static final int FINGERPRINT = 10;
+   int FINGERPRINT = 10;
 }

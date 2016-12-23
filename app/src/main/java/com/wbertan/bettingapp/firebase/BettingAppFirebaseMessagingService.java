@@ -12,6 +12,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.wbertan.bettingapp.R;
 import com.wbertan.bettingapp.props.PropsBroadcastReceiver;
+import com.wbertan.bettingapp.view.MainActivity;
 
 /**
  * Created by william.bertan on 18/12/2016.
@@ -33,9 +34,9 @@ public class BettingAppFirebaseMessagingService extends FirebaseMessagingService
     }
 
     private void sendNotification(String aMessageTitle, String aMessageBody, String aIntentAction) {
-        Intent intent = new Intent();
+        Intent intent = new Intent(this, MainActivity.class);
         intent.setAction(aIntentAction);
-//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,PendingIntent.FLAG_UPDATE_CURRENT);
 
         long[] pattern = {500,500,500,500,500};

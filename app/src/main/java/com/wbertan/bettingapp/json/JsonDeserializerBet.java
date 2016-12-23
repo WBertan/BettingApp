@@ -28,7 +28,7 @@ public class JsonDeserializerBet extends JsonDeserializerGeneric<Bet>{
         Bet bet = new Bet();
 
         long betId = aJsonObject.getLong("betId");
-        double stake = aJsonObject.getDouble("Stake");
+        String stake = aJsonObject.getString("Stake");
         String odds = aJsonObject.getString("Odds");
         String event = aJsonObject.getString("Event");
 

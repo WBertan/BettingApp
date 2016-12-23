@@ -2,6 +2,8 @@ package com.wbertan.bettingapp.firebase;
 
 import android.util.Log;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
@@ -18,6 +20,9 @@ public class BettingAppFirebaseInstanceIDService extends FirebaseInstanceIdServi
     }
 
     private void sendRegistrationToServer(String refreshedToken) {
-        //TODO Refresh in the server the new Token for this user!
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference databaseReferenceUserFavorite = database.getReference(FirebaseInstanceId.getInstance().getId()).child("token");
+        databaseReferenceUserFavorite.child("firebase_message_token").setValue(refreshedToken);
+        databaseReferenceUserFavorite.child("firebase_message_token_last_time").setValue(System.currentTimeMillis());
     }
 }

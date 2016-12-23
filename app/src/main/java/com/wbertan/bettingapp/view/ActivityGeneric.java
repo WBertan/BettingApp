@@ -7,26 +7,29 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.inputmethod.InputMethodManager;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.wbertan.bettingapp.R;
+import com.wbertan.bettingapp.fragments.FragmentGeneric;
 import com.wbertan.bettingapp.props.PropsBroadcastReceiver;
+
+import java.util.List;
 
 /**
  * Created by william.bertan on 18/12/2016.
  */
 
-public abstract class ActivityGeneric extends AppCompatActivity {
+public abstract class ActivityGeneric extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener {
     MainBroadcastReceiver mMainBroadcastReceiver = null;
-    FirebaseAnalytics mFirebaseAnalytics;
 
     class MainBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context aContext, Intent aIntent) {
-            Fragment fragment = processBroadcastReceiver(aIntent);
+            FragmentGeneric fragment = processBroadcastReceiver(aIntent);
             if(fragment == null) {
                 //No one is supposed to process, or already had been processed (already in the screen)
                 return;
@@ -36,16 +39,23 @@ public abstract class ActivityGeneric extends AppCompatActivity {
         }
     }
 
-    protected Fragment recoverFragment(Class aClazz) {
-        return getSupportFragmentManager().findFragmentByTag(aClazz.getClass().getSimpleName());
+    protected <T> Fragment recoverFragment(Class<T> aClazz) {
+        return getSupportFragmentManager().findFragmentByTag(aClazz.getSimpleName());
     }
 
-    protected abstract Fragment processBroadcastReceiver(Intent aIntent);
+    protected abstract FragmentGeneric processBroadcastReceiver(Intent aIntent);
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        setContentView(R.layout.activity_generic);
+
+        Toolbar toolbarMain = (Toolbar) findViewById(R.id.toolbarMain);
+        if(toolbarMain != null) {
+            setSupportActionBar(toolbarMain);
+        }
+
+        getSupportFragmentManager().addOnBackStackChangedListener(this);
     }
 
     @Override
@@ -75,7 +85,7 @@ public abstract class ActivityGeneric extends AppCompatActivity {
         }
     }
 
-    protected void setFragment(Fragment aFragment) {
+    protected void setFragment(FragmentGeneric aFragment) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
         if (getSupportFragmentManager().getFragments() != null) {
@@ -94,6 +104,27 @@ public abstract class ActivityGeneric extends AppCompatActivity {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if(getCurrentFocus() != null) {
             inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getApplicationWindowToken(), 0);
+        }
+    }
+
+    @Override
+    public void onBackStackChanged() {
+        List<Fragment> listFragments = getSupportFragmentManager().getFragments();
+        if(listFragments != null && !listFragments.isEmpty()) {
+            //Get the last valid fragment, because fragment manager is buggy and no "shrink" the list
+            // it only put a "null" object in the position
+            FragmentGeneric fragmentGeneric = null;
+            for(int counter = listFragments.size() - 1; counter > 0; counter--) {
+                fragmentGeneric = (FragmentGeneric) listFragments.get(counter);
+                if(fragmentGeneric != null) break;
+            }
+            if(fragmentGeneric != null && getSupportActionBar() != null ) {
+                getSupportActionBar().setTitle(fragmentGeneric.getFragmentTitle());
+            } else {
+                if(getSupportActionBar() != null) {
+                    getSupportActionBar().setTitle(getResources().getString(R.string.app_name));
+                }
+            }
         }
     }
 }

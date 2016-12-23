@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 
 import com.wbertan.bettingapp.R;
 import com.wbertan.bettingapp.fragments.FragmentExit;
+import com.wbertan.bettingapp.fragments.FragmentGeneric;
 import com.wbertan.bettingapp.fragments.FragmentLogin;
 import com.wbertan.bettingapp.fragments.FragmentMain;
 import com.wbertan.bettingapp.fragments.FragmentSignIn;
@@ -17,14 +18,12 @@ public class MainActivity extends ActivityGeneric {
     @Override
     protected void onCreate(Bundle aSavedInstanceState) {
         super.onCreate(aSavedInstanceState);
-        setContentView(R.layout.activity_login);
-
         setFragment(new FragmentExit());
         setFragment(new FragmentLogin());
     }
 
     @Override
-    protected Fragment processBroadcastReceiver(Intent aIntent) {
+    protected FragmentGeneric processBroadcastReceiver(Intent aIntent) {
         if(aIntent.getAction().equals(PropsBroadcastReceiver.SIGN_IN)) {
             return new FragmentSignIn();
         } else if(aIntent.getAction().equals(PropsBroadcastReceiver.SIGN_UP)) {
@@ -37,8 +36,8 @@ public class MainActivity extends ActivityGeneric {
             if(fragment != null) {
                 FragmentMain fragmentMain = (FragmentMain) fragment;
                 fragmentMain.onResume();
-                DialogUtil.instantiate(this).withTitle(":)").withMessage("Some of the odds changed!\nMay this change the game!").show();
-                return fragmentMain;
+                DialogUtil.instantiate(this).withTitle(getString(R.string.dialog_title_success)).withMessage(getString(R.string.dialog_message_load_bet_success)).show();
+                return null; /* do nothing */
             }
         }
         return null;

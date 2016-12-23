@@ -17,8 +17,8 @@ import com.wbertan.bettingapp.props.PropsBroadcastReceiver;
 
 public class FragmentLogin extends FragmentGeneric implements View.OnClickListener {
     @Override
-    public String getActivityTitle() {
-        return "Login";
+    public String getFragmentTitle() {
+        return getString(R.string.fragment_login_title);
     }
 
     @Nullable

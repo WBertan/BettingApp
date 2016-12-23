@@ -31,8 +31,8 @@ public class FragmentSignUp extends FragmentGeneric implements TextWatcher {
     private EditText mEditTextPasswordVerify;
 
     @Override
-    public String getActivityTitle() {
-        return "Sign Up";
+    public String getFragmentTitle() {
+        return getString(R.string.fragment_sign_up_title);
     }
 
     @Nullable
@@ -90,7 +90,7 @@ public class FragmentSignUp extends FragmentGeneric implements TextWatcher {
             if(!mEditTextPassword.getEditableText().toString().equals(mEditTextPasswordVerify.getEditableText().toString())) {
                 mEditTextPassword.setText("");
                 mEditTextPasswordVerify.setText("");
-                mEditTextPassword.setError("Check again, because the passwords didn't check!");
+                mEditTextPassword.setError(getString(R.string.message_validation_check_both_password));
                 mEditTextPassword.requestFocus();
                 return;
             } else {
